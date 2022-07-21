@@ -93,8 +93,24 @@ object recursion {
    * F0 = 0, F1 = 1, Fn = Fn-1 + Fn - 2
    *
    */
+  def fib(n:Int): Long={
+    var a: Long = 1
+    var b: Long = 2
+    var m: Long = 0
+    @tailrec
+    def sum(n:Int, i:Int, c:Long): Long={
+      if(i<=n){
+        m=a+b
+        a=b
+        b=m
+        sum(n, i+1, m)
+      } else if(n<=2) 1
+      else b
+    }
+    sum(n, 4, 0)
+  }
 
-
+  val fib2 : Int => Int = n => if(n<=2) 1 else fib2(n-1) + fib2(n-2)
 }
 
 object hof{

@@ -1,5 +1,7 @@
 package module1
 
+import module1.recursion.{fib, fib2}
+
 object App {
   def main(args: Array[String]): Unit = {
 //    def sumItUp: Int = {
@@ -11,7 +13,8 @@ object App {
 //    println(sumItUp)
 //
 //    println("Hello world")
-
+  println(fib(5))
+    println(fib2(3))
     list
   }
 }
