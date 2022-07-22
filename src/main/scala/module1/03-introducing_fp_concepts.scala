@@ -99,7 +99,7 @@ object recursion {
     var m: Long = 0
     @tailrec
     def sum(n:Int, i:Int): Long={
-      if(i<=n){
+      if(i<n){
         m=a+b
         a=b
         b=m
@@ -107,7 +107,7 @@ object recursion {
       } else if(n<=2) 1
       else b
     }
-    sum(n, 4)
+    sum(n, 3)
   }
 
   val fib2 : Int => Int = n => if(n<=2) 1 else fib2(n-1) + fib2(n-2)
@@ -273,6 +273,9 @@ object hof{
    * Реализовать метод printIfAny, который будет печатать значение, если оно есть
    */
 
+//  def printIfAny[T](v: T): Unit {
+//
+//  }
 
   /**
    *

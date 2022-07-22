@@ -13,7 +13,7 @@ object App {
 //    println(sumItUp)
 //
 //    println("Hello world")
-  println(fib(77))
+  println(fib(3))
     println(fib2(3))
     list
   }
