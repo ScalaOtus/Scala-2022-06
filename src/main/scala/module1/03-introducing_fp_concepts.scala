@@ -355,6 +355,8 @@ object hof{
 
    }
 
+   case class A(var a: String)
+
 
 
    /**
