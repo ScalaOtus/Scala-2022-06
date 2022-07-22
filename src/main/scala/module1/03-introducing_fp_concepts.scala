@@ -98,16 +98,16 @@ object recursion {
     var b: Long = 2
     var m: Long = 0
     @tailrec
-    def sum(n:Int, i:Int, c:Long): Long={
+    def sum(n:Int, i:Int): Long={
       if(i<=n){
         m=a+b
         a=b
         b=m
-        sum(n, i+1, m)
+        sum(n, i+1)
       } else if(n<=2) 1
       else b
     }
-    sum(n, 4, 0)
+    sum(n, 4)
   }
 
   val fib2 : Int => Int = n => if(n<=2) 1 else fib2(n-1) + fib2(n-2)
