@@ -1,9 +1,11 @@
 package module1
 
+import module1.list.List.::
+
 import java.util.UUID
 import scala.annotation.tailrec
 import java.time.Instant
-
+import scala.collection.immutable.{AbstractSeq, LinearSeq}
 import scala.language.postfixOps
 
 
@@ -217,7 +219,6 @@ object hof{
 
   trait Option[+T]{
 
-
     def isEmpty: Boolean = this match {
       case Option.None => true
       case Option.Some(v) => false
@@ -234,6 +235,24 @@ object hof{
     def flatMap[B](f: T => Option[B]): Option[B] = this match {
       case Option.None => Option.None
       case Option.Some(v) => f(v)
+    }
+
+    def printIfAny[T]():  Unit = this match {
+      case Option.Some(v) => println(v)
+      case Option.None =>
+    }
+
+    def zip[B](a: Option[B]): Option[(T,B)]  = this match {
+      case Option.Some(v) => (a) match {
+          case Option.None => Option.None
+          case Option.Some(a) => Option.Some((v,a))
+        }
+      case Option.None => Option.None
+    }
+
+    def filter(f: T => Boolean):  Option[T] = this match {
+      case Option.Some(v) => if(f(v)) Option.Some(v) else Option.None
+      case Option.None => Option.None
     }
 
   }
@@ -263,12 +282,12 @@ object hof{
    * Реализовать метод zip, который будет создавать Option от пары значений из 2-х Option
    */
 
-
   /**
    *
    * Реализовать метод filter, который будет возвращать не пустой Option
    * в случае если исходный не пуст и предикат от значения = true
    */
+
 
  }
 
@@ -283,17 +302,57 @@ object hof{
 
     trait List[+T]{
 
-     def ::[TT >: T](elem: TT): List[TT] = ???
+     def ::[TT >: T](elem: TT): List[TT] = this match {
+       case List.::(_, _) => elem :: this
+       case List.Nil => elem :: List.Nil
+     }
+
+     def mkString(sep: String): String = {
+       def iter(t: List[T]): String = (t) match {
+         case List.::(head, tail) => head + sep + iter(tail)
+         case List.Nil => ""
+       }
+       iter(this)
+     }
+
+     def apply[T](v: T*): List[T] = if(v.isEmpty) List.Nil
+      else new ::(v.head, apply(v.tail:_*))
+
+     def reverse(): List[T] = {
+       @tailrec
+        def rev(t: List[T], rl: List[T]): List[T] = (t) match {
+          case ::(head, tail) => rev(tail, List.::(head,rl))
+          case List.Nil => rl
+        }
+       rev(this, List.Nil)
+     }
+
+     def map[B](f: T => B): List[B] = {
+       def iter(t: List[T]): List[B] = (t) match {
+         case ::(head, tail) => List.::(f(head),iter(tail))
+         case List.Nil => List.Nil
+       }
+       iter(this)
+     }
+
+     def filter(f: T => Boolean):  List[T] = {
+       def iter(t: List[T]): List[T] = (t) match {
+         case ::(head, tail) => if(f(head)) List.::(head,iter(tail)) else iter(tail)
+         case List.Nil => List.Nil
+       }
+       iter(this)
+     }
 
    }
 
    object List{
-     case class ::[A](head: A, tail: List[A]) extends List[A]
+     case class ::[T](head: T, tail: List[T]) extends List[T]
      case object Nil extends List[Nothing]
 
 
-     def apply[A](v: A*): List[A] = if(v.isEmpty) List.Nil
+     def apply[T](v: T*): List[T] = if(v.isEmpty) List.Nil
       else new ::(v.head, apply(v.tail:_*))
+
    }
 
 
