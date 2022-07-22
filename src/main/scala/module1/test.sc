@@ -1,5 +1,5 @@
 import module1.opt.Option
-import module1.list.List
+import module1.list._
 
 
 
@@ -33,4 +33,10 @@ val l2 = l1.map((x: Int) => x * 2)
 l2.mkString(";")
 
 val l3 = l2.filter((i: Int) => i > 7)
+
+val l4 = incList(l3)
+
+val ls = List("a","b","c","d")
+
+val ls2 = shoutString(ls)
 
