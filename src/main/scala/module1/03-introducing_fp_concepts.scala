@@ -94,6 +94,15 @@ object recursion {
    *
    */
 
+  def fibRec(n: Int): Int = {
+    def loop(first: Int, second: Int, counter: Int): Int = {
+      if (counter == n) second else {
+        loop(second, first + second, counter + 1)
+      }
+    }
+    loop(0, 1, 2)
+  }
+
 
 }
 
@@ -236,6 +245,21 @@ object hof{
       case Option.Some(v) => f(v)
     }
 
+    def printIfAny = this match {
+      case Option.Some(v) => print(v)
+      case Option.None => throw new Exception("empty Option")
+    }
+
+    def zip[B](option: Option[B]): Option[(T, B)] = this match {
+      case Option.Some(v) => Option(v, option.get)
+      case Option.None => throw new Exception("get on empty Option")
+    }
+
+    def filter(f: T => Boolean): Option[T] = this match {
+      case Option.None => Option.None
+      case Option.Some(v) => if (f(Option.Some(v).get)) Option.Some(v) else Option.None
+    }
+
   }
 
   val a: Option[Int] = ???
@@ -281,11 +305,53 @@ object hof{
     * Cons - непустой, содердит первый элемент (голову) и хвост (оставшийся список)
     */
 
-    trait List[+T]{
+    trait List[+A]{
 
-     def ::[TT >: T](elem: TT): List[TT] = ???
+     def cons[AA >: A](elem: AA): List[AA] = List.::(elem, this)
 
+     def mkString(sep: String): String = {
+       def loop(list: List[A]): String = list match {
+         case List.::(head, tail) => head.toString + sep + loop(tail)
+         case List.Nil => ""
+       }
+       loop(this)
+     }
+
+     def reverse: List[A] = {
+       def loop(list: List[A], listResult: List[A]): List[A] = list match {
+         case List.::(head, tail) => loop(tail, List.::(head, listResult))
+         case List.Nil => listResult
+       }
+       loop(this, List.Nil)
+       }
+
+     def map[B](f: A => B): List[B] = {
+       def loop(list: List[A]): List[B] = list match {
+         case List.::(head, tail) => List.::(f(head), loop(tail))
+         case List.Nil => List.Nil
+       }
+       loop(this)
+     }
+
+     def filter(f: A => Boolean): List[A] = {
+       def loop(list: List[A]): List[A] = list match {
+         case List.::(head, tail) => if (f(head)) List.::(head, loop(tail)) else loop(tail)
+         case List.Nil => List.Nil
+       }
+       loop(this)
+     }
+    }
+
+
+   def incList(list: List[Int]): List[Int] = {
+     list.map((v: Int) => v + 1)
    }
+
+   def shoutString(list: List[String]): List[String] = {
+     list.map((v: String) => "!" + v)
+   }
+
+
 
    object List{
      case class ::[A](head: A, tail: List[A]) extends List[A]
@@ -295,7 +361,6 @@ object hof{
      def apply[A](v: A*): List[A] = if(v.isEmpty) List.Nil
       else new ::(v.head, apply(v.tail:_*))
    }
-
    case class A(var a: String)
 
 
