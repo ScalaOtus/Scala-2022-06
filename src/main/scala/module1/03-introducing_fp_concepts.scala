@@ -312,6 +312,8 @@ object hof{
       else new ::(v.head, apply(v.tail:_*))
    }
 
+   case class A(var a: String)
+
 
 
    /**
