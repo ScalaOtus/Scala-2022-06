@@ -131,6 +131,7 @@ object type_system {
 
     // создать case класс кредитная карта с двумя полями номер и cvc
 
+    case class CreditCard(number: String, cvc: Int)
 
     /**
      * case object

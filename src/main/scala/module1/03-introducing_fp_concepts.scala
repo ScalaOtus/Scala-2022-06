@@ -1,9 +1,14 @@
 package module1
 
+import module1.list.List
+import module1.list.List.::
+
 import java.util.UUID
 import scala.annotation.tailrec
 import java.time.Instant
-
+import javax.swing.text.html.HTMLDocument
+import scala.Console.println
+import scala.collection
 import scala.language.postfixOps
 
 
@@ -272,21 +277,24 @@ object hof{
    *
    * Реализовать метод printIfAny, который будет печатать значение, если оно есть
    */
+    def printIfAny2(s : String): Unit =if (s.nonEmpty) println(s)
 
+    def printIfAny[T](s: Option[T]): Unit = if (!s.isEmpty) println(s.get)
 
   /**
    *
    * Реализовать метод zip, который будет создавать Option от пары значений из 2-х Option
    */
-
+    def zip[T, L](first: Option[L], second: Option[T]): Option[(Option[L], Option[T])] = Option(first, second)
 
   /**
    *
    * Реализовать метод filter, который будет возвращать не пустой Option
    * в случае если исходный не пуст и предикат от значения = true
    */
+    def filter[T](s: Option[T]) = if (!s.isEmpty) s
 
- }
+}
 
  object list {
    /**
@@ -299,22 +307,28 @@ object hof{
 
     trait List[+T]{
 
-     def ::[TT >: T](elem: TT): List[TT] = ???
+     def ::[TT >: T](elem: TT): List[TT] = List(elem)
 
+     def mkString(s: String): String = this match {
+       case List.::(head, tail) => head.toString + s + tail.mkString(s)
+       case List.Nil => ""
+     }
+
+     def cons[TT >: T](e: TT): List[TT] = List.::(e, this)
    }
+
 
    object List{
      case class ::[A](head: A, tail: List[A]) extends List[A]
      case object Nil extends List[Nothing]
 
+//     def *(n: Int*): List[Int] = n.map(apply(_))
 
      def apply[A](v: A*): List[A] = if(v.isEmpty) List.Nil
       else new ::(v.head, apply(v.tail:_*))
    }
 
    case class A(var a: String)
-
-
 
    /**
      * Метод cons, добавляет элемент в голову списка, для этого метода можно воспользоваться названием `::`
