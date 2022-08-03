@@ -11,6 +11,9 @@ object App {
 //    println(sumItUp)
 //
 //    println("Hello world")
-    list
+    val list = module1.list.List.to(1-2)
+    val list2 = module1.list.List(1)
+    val list3 = list2.cons(2)
+    println(list)
   }
 }

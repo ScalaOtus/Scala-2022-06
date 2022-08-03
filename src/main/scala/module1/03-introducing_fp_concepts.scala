@@ -2,6 +2,7 @@ package module1
 
 import module1.list.List
 import module1.list.List.::
+import module1.opt.Option
 
 import java.util.UUID
 import scala.annotation.tailrec
@@ -309,12 +310,22 @@ object hof{
 
      def ::[TT >: T](elem: TT): List[TT] = List(elem)
 
+     def map[B](f: T => List[B]): List[B] =
+       flatMap(v => f(v))
+
+     def flatMap[B](f: T => List[B]): List[B] = this match {
+       case List.Nil => List.Nil
+       case v: T => f(v)
+     }
+
      def mkString(s: String): String = this match {
        case List.::(head, tail) => head.toString + s + tail.mkString(s)
        case List.Nil => ""
      }
 
      def cons[TT >: T](e: TT): List[TT] = List.::(e, this)
+
+     def reverse: List[T] = for((h, t) <- this) yield (t,h)
    }
 
 
@@ -322,7 +333,7 @@ object hof{
      case class ::[A](head: A, tail: List[A]) extends List[A]
      case object Nil extends List[Nothing]
 
-//     def *(n: Int*): List[Int] = n.map(apply(_))
+     def to(n: Int*): List[Int] = new ::(n.head, apply(n.tail:_*))
 
      def apply[A](v: A*): List[A] = if(v.isEmpty) List.Nil
       else new ::(v.head, apply(v.tail:_*))
