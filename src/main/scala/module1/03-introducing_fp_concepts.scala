@@ -1,16 +1,10 @@
 package module1
 
-import module1.list.List
 import module1.list.List.::
-import module1.opt.Option
 
 import java.util.UUID
 import scala.annotation.tailrec
-import java.time.Instant
-import javax.swing.text.html.HTMLDocument
 import scala.Console.println
-import scala.collection
-import scala.language.postfixOps
 
 
 
@@ -258,6 +252,23 @@ object hof{
       case Option.Some(v) => f(v)
     }
 
+    def printIfAny(): Unit = this match {
+      case Option.Some(v) => println(v)
+    }
+
+    def zip[B](option: Option[B]): Option[(T, B)] = this match {
+      case Option.Some(v) => option match {
+        case Option.Some(e) => Option(v, e)
+        case Option.None => Option.None
+      }
+      case Option.None => Option.None
+    }
+
+    def filter(f: T => Boolean): Option[T] = this match {
+      case Option.None => Option.None
+      case Option.Some(v) => if (f(Option.Some(v).get)) Option.Some(v) else Option.None
+    }
+
   }
 
   val a: Option[Int] = ???
@@ -278,22 +289,17 @@ object hof{
    *
    * Реализовать метод printIfAny, который будет печатать значение, если оно есть
    */
-    def printIfAny2(s : String): Unit =if (s.nonEmpty) println(s)
-
-    def printIfAny[T](s: Option[T]): Unit = if (!s.isEmpty) println(s.get)
 
   /**
    *
    * Реализовать метод zip, который будет создавать Option от пары значений из 2-х Option
    */
-    def zip[T, L](first: Option[L], second: Option[T]): Option[(Option[L], Option[T])] = Option(first, second)
 
   /**
    *
    * Реализовать метод filter, который будет возвращать не пустой Option
    * в случае если исходный не пуст и предикат от значения = true
    */
-    def filter[T](s: Option[T]) = if (!s.isEmpty) s
 
 }
 
@@ -310,12 +316,21 @@ object hof{
 
      def ::[TT >: T](elem: TT): List[TT] = List(elem)
 
-     def map[B](f: T => List[B]): List[B] =
-       flatMap(v => f(v))
 
-     def flatMap[B](f: T => List[B]): List[B] = this match {
-       case List.Nil => List.Nil
-       case v: T => f(v)
+     def map[B](f: T => B): List[B] = {
+       def rec(list: List[T]): List[B] = list match {
+         case head :: tail => List.::(f(head), rec(tail))
+         case List.Nil => List.Nil
+       }
+       rec(this)
+     }
+
+     def filter[B](f: T => Boolean): List[T] = {
+       def rec(list: List[T]): List[T] = list match {
+         case head::tail => if (f(head)) List.::(head, rec(tail)) else rec(tail)
+         case List.Nil => List.Nil
+       }
+       rec(this)
      }
 
      def mkString(s: String): String = this match {
@@ -325,7 +340,30 @@ object hof{
 
      def cons[TT >: T](e: TT): List[TT] = List.::(e, this)
 
-     def reverse: List[T] = for((h, t) <- this) yield (t,h)
+     def reverse: List[T] = {
+       def rec(list: List[T], tail: List[T]): List[T] = list match {
+         case head :: tail => rec(tail, List.::(head, tail))
+         case List.Nil => tail
+       }
+       rec(this, List.Nil)
+     }
+
+     def incList[B]: List[Int] = {
+       def rec(list: List[T]): List[Int] = list match {
+         case List.::(head: Int, tail: List[Int]) => List.::(head+1, rec(tail))
+         case List.Nil => List.Nil
+       }
+       rec(this)
+     }
+
+     def shoutString: List[String] = {
+       def rec(list: List[T]): List[String] = list match {
+         case List.::(head: String, tail: List[String]) => List.::(head+"!", rec(tail))
+         case List.Nil => List.Nil
+       }
+       rec(this)
+     }
+
    }
 
 
