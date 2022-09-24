@@ -5,7 +5,8 @@ import HomeworksUtils.TaskSyntax
 import java.util.concurrent.Executors
 import scala.collection.mutable
 import scala.collection.mutable.Builder
-import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService, Future, Promise}
+import scala.concurrent.duration.{Duration, SECONDS}
+import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, ExecutionContextExecutorService, Future, Promise}
 import scala.util.{Failure, Success, Try}
 
 object task_futures_sequence {
@@ -25,21 +26,24 @@ object task_futures_sequence {
    */
   def fullSequence[A](futures: List[Future[A]])
                      (implicit ex: ExecutionContext): Future[(List[A], List[Throwable])] = {
-    val p = Promise[(List[A], List[Throwable])]
-    // Сворачиваем влево в Future списка
-    futures.foldLeft(Future.successful(List[Any]())){
-      (fr, fa) => fr.zipWith(fa.recover(e => e))((a, b) => a :+ b)
-    }.onComplete{
-      // Callback при окончании всех Future в списке
-      case Failure(exception) => p.failure(exception) // Если провалилась сборка листа - возвращаем Failed
-      case Success(value) => p.success {
-        // Фильтруем результат - он не Throwable
-        // (Не используем isInstanceOf[A] т.к. Nothing (aka Throwable) подтип всего)
-        val successful = value.filter(e => !e.isInstanceOf[Throwable]).map(e => e.asInstanceOf[A])
-        val failed = value.filter(e => e.isInstanceOf[Throwable]).map(e => e.asInstanceOf[Throwable])
-        (successful, failed)
-      }
+    val mapFuture: Future[A] => Future[(List[A], List[Throwable])] =
+      v => v.map(v => (List[A](v), List[Throwable]()))
+        .recover(e => (List[A](), List[Throwable](e)));
+
+    futures.foldLeft(Future(List[A](), List[Throwable]())){(acc, v) =>
+      acc.zipWith(mapFuture(v))((a, b) => (a._1 ::: b._1, a._2 ::: b._2))
     }
-    p.future
+  }
+
+  def main(args: Array[String]): Unit = {
+    implicit val ex: ExecutionContextExecutor = ExecutionContext.parasitic;
+    fullSequence(
+      Future(35)
+        :: Future(14)
+        :: Future(throw new IllegalArgumentException("Exception 1"))
+        :: Future(throw new IllegalArgumentException("Exception 2"))
+        :: Future(throw new IllegalArgumentException("Exception 3"))
+        :: Future(48)
+        :: Nil).onComplete(println(_))
   }
 }
