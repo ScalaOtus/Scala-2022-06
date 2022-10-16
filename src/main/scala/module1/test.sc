@@ -1,19 +1,6 @@
-import module1.opt.Option
-import module1.list.List._
+import module1.lesson5.ForComp
 
-module1.list.List().isEmpty
+import scala.collection.mutable.ListBuffer
 
-module1.list.List(1,2,3).map(x => x < 8)
-
-module1.list.List(1,2,3,4,5).reverse
-
-module1.list.List(1,2,3).filter(_ < 2)
-
-module1.list.List().incList(module1.list.List(3,4,5,6))
-module1.list.List().shoutString(module1.list.List("3","4","5"))
-module1.list.List(1,2,3).mkString("/")
-
-
-module1.list.List(1,2,3).filter(_ < 2)
-
-
+val t = new ForComp
+t.result(ListBuffer(1, 1, 1, 0,0,0), 100000)
