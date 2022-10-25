@@ -2,7 +2,12 @@ package futures
 
 import HomeworksUtils.TaskSyntax
 
-import scala.concurrent.{ExecutionContext, Future}
+import java.util.concurrent.Executors
+import scala.collection.mutable
+import scala.collection.mutable.Builder
+import scala.concurrent.duration.{Duration, SECONDS}
+import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, ExecutionContextExecutorService, Future, Promise}
+import scala.util.{Failure, Success, Try}
 
 object task_futures_sequence {
 
@@ -20,6 +25,25 @@ object task_futures_sequence {
    * @return асинхронную задачу с кортежом из двух списков
    */
   def fullSequence[A](futures: List[Future[A]])
-                     (implicit ex: ExecutionContext): Future[(List[A], List[Throwable])] =
-    task"Реализуйте метод `fullSequence`"()
+                     (implicit ex: ExecutionContext): Future[(List[A], List[Throwable])] = {
+    val mapFuture: Future[A] => Future[(List[A], List[Throwable])] =
+      v => v.map(v => (List[A](v), List[Throwable]()))
+        .recover(e => (List[A](), List[Throwable](e)));
+
+    futures.foldLeft(Future(List[A](), List[Throwable]())){(acc, v) =>
+      acc.zipWith(mapFuture(v))((a, b) => (a._1 ::: b._1, a._2 ::: b._2))
+    }
+  }
+
+  def main(args: Array[String]): Unit = {
+    implicit val ex: ExecutionContextExecutor = ExecutionContext.parasitic;
+    fullSequence(
+      Future(35)
+        :: Future(14)
+        :: Future(throw new IllegalArgumentException("Exception 1"))
+        :: Future(throw new IllegalArgumentException("Exception 2"))
+        :: Future(throw new IllegalArgumentException("Exception 3"))
+        :: Future(48)
+        :: Nil).onComplete(println(_))
+  }
 }
